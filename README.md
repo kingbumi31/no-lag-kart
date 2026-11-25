@@ -116,6 +116,26 @@ What they did on the M2 Pro with an earlier build of this fork (13 November), wh
 
 "Drawn per frame" is the render-target megabytes the game draws into each frame, which follows the render size it picks. The pad alone halves the late frames or better; handheld split screen removes nearly all of them. On the current build the M2 Pro has only the one late frame at the cut into the race left, so there the two settings only cost picture: the pad at 1.25 draws 12 % and 19 % less (two and four players), handheld split screen 32 % and 34 % less. The current build with neither line is as smooth as the earlier one with both, and draws about half again as much (52 % and 54 % more).
 
+### If the whole game runs slow on an older Mac
+
+On a Mac with a smaller or older GPU, the GPU clock keeper itself can be the cause: the whole game, one player included, runs at about 20 fps and slower than real time (the three-second countdown takes visibly longer). Turn the keeper off with this line in `env.txt`:
+
+```
+DM_GPU_KEEP=0
+```
+
+Measured on a MacBook Pro, M1 Pro (6+2-core CPU, 14-core GPU), 16 GB, macOS 27.2.1, fullscreen, one player in console mode, with `scripts/bench.py` and the route `gp-start-150` (the 150cc race's start), three runs per line (the times are the median run):
+
+| `env.txt` line | fps per run | Frame time p50 | Frame time p99 | GPU time p50 |
+|---|---|---|---|---|
+| none (the keeper at full duty, the profile's default) | 20.9, 21.0, 49.5 | 47.7 ms | 61 ms | 44.4 ms |
+| `DM_GPU_KEEP=auto` | 46.9, 29.5, 32.0 | 16.9 to 39.7 ms | 52 to 56 ms | 13.6 to 35.6 ms |
+| `DM_GPU_KEEP=0` | 59.5, 59.5, 59.5 | 16.6 ms | 21 to 22 ms | 13.1 to 13.4 ms |
+
+With the keeper at full duty, most runs stayed at about 21 fps with 45 ms of GPU time a frame (the GPU reported 99 % busy) and some ran at about 50 fps, at random; with it off, every run held 60 fps with 13 ms of GPU time. `DM_NVN_FAST_WAKE=0`, `DM_NVN_SUBMIT_STREAM=0`, `DM_SPIN_POLL=0`, `DM_SPIN=0`, `DM_YIELD_BACKOFF=0`, `DM_NVN_ENC_THREAD=0` and `DM_NVN_BARRIER=game` made no difference there, and neither did handheld mode alone. In normal play afterwards (about 200 windows of 300 frames over several races), no window's median frame time went above 17 ms and the game ran at real speed.
+
+When benchmarking on such a Mac, pass `--pso-archive` a copy of the app's own pipeline archive (`~/Library/Application Support/nxnative/0400C3F00006E000/pso_archive`): with an empty one, preparing the pipelines took 83 s before the first frame there, and the route's presses came before the title took them.
+
 ## What this fork changes
 
 Each change went in only after a run on the Mac showed it helps this game, or because it corrects behaviour on a path the game takes. Every one with its measurement, and what was tried and left out: [`mkw/TRIAGE.md`](mkw/TRIAGE.md).
