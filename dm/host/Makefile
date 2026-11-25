@@ -23,7 +23,7 @@ CFLAGS=-O2 -g -Wall -Wno-unused-function -mmacosx-version-min=$(MACOS_MIN)
 # out as cold. A source that moved on since the profile was recorded is built without it for the functions that changed (the two -Wno flags keep that quiet)
 ifeq ($(GAME),0400C3F00006E000)
 ifneq ($(wildcard ../../mkw/pgo/dmhost.profdata),)
-CFLAGS+=-fprofile-instr-use=$(abspath ../../mkw/pgo/dmhost.profdata) -Wno-profile-instr-out-of-date -Wno-profile-instr-unprofiled
+CFLAGS+=-fprofile-instr-use="$(abspath ../../mkw/pgo/dmhost.profdata)" -Wno-profile-instr-out-of-date -Wno-profile-instr-unprofiled
 endif
 endif
 # Service-layer takeover hle_*.c files are included by wildcard: adding a file does not touch this line (avoids merge conflicts)
